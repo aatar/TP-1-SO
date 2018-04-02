@@ -9,7 +9,7 @@
 #include "fileDescriptors.h"
 #include "queueOfFiles.h"
 
-char* calculateFileMD5Hash(char * fileName)
+char * calculateFileMD5Hash(char * fileName)
 {
 	int status = 0;
 	char * hashCalculated = malloc(sizeof(char)*32);
@@ -17,13 +17,12 @@ char* calculateFileMD5Hash(char * fileName)
 	int fileDescriptors[2];
 	pid_t pid;
 
-
 	if(pipe(fileDescriptors) < 0)
 	{
 		fprintf(stderr, "Pipe Failed\n");
 		exit(1);
 	}
-	
+
 	pid = fork();
 	if(pid < 0)
 	{
@@ -44,13 +43,13 @@ char* calculateFileMD5Hash(char * fileName)
 	dup2(fileDescriptors[0], STDIN);
 	// close unused end of pipe
 	close(fileDescriptors[1]);
-	
+
 	wait(&status);
 
 	scanf("%s", hashCalculated);
 	while(scanf("%s", dump) > 0)
 	return hashCalculated;
-} 
+}
 
 void executeMD5HashCommand(char * fileName)
 {

@@ -3,26 +3,17 @@
 #include "testLib.h"
 #include "queueOfFiles.h"
 
-queueADT createQueue(int maxSize)
+queueADT createQueue()
 {
-	
 	queueADT queue = (queueADT) malloc(sizeof(queueCDT));
 	queue->first = (nodeADT) NULL;
 	queue->last = (nodeADT) NULL;
 	queue->currentSize = 0;
-	queue->maxSize = maxSize;
-	
 	return queue;
 }
 
 void enqueueFile(char * fileName, queueADT queue)
 {
-	
-	if(queue->currentSize == queue->maxSize) {
-		fail("The queue is full, cannot enqueue file\n");
-		return;
-	}
-
 	nodeADT newNode = (nodeADT) malloc(sizeof(nodeCDT));
 
 	newNode->fileName = fileName;
@@ -31,7 +22,7 @@ void enqueueFile(char * fileName, queueADT queue)
 	if(isEmpty(queue))
 	{
 		queue->first = newNode;
-		
+
 	}
 	else
 	{

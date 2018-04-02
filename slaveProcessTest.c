@@ -3,11 +3,11 @@
 #include "slaveProcess.h"
 #include "queueOfFiles.h"
 
-void testHashMD5OneFile();
-void testHashMD5MultipleFiles();
+void testHashMD5OneFilePath();
+void testHashMD5MultipleFilesPaths();
 
-void givenAFile();
-void givenMultipleFiles();
+void givenAFilePath();
+void givenMultipleFilesPaths();
 void givenAQueue();
 
 void whenHashMD5OfTheFileIsCalculated();
@@ -16,78 +16,62 @@ void whenMultipleFilesHashesAreCalculated();
 void thenTheHashMD5IsReturned();
 void thenTheHashesMD5AreReturned();
 
-#define SIZE 5
-#define MAXSIZE 10
-
 queueADT queue;
-char* testingFiles[] = {"file1.txt", "file2.txt", "file3.txt", "file4.txt", "file5.txt"};
-char* fileName;
+char * testingFilesPaths[] = {"file1.txt", "file2.txt", "file3.txt", "file4.txt", "file5.txt"};
+char * fileName;
 
-char* calculatedMD5Hash;
-char* calculatedMD5Hashes[SIZE];
-char* expectedMD5Hashes[] = {"4d186321c1a7f0f354b297e8914ab240", 
-							 "cdcf8d0131420ccecc2e769f5db62e1b", 
+char * calculatedMD5Hash;
+char * calculatedMD5Hashes[5];
+char * expectedMD5Hashes[] = {"4d186321c1a7f0f354b297e8914ab240",
+							 "cdcf8d0131420ccecc2e769f5db62e1b",
 							 "61938292ca4cf3be12141ab6bc01c1d3",
-							 "1683e3c47cf7a46dc308a70ca7d016c2", 
+							 "1683e3c47cf7a46dc308a70ca7d016c2",
 							 "f130f9b486ae8f768161a710163ac80e"};
 
 int main()
 {
-	printf("Test MD5 Hash for one file: \n");
-	testHashMD5OneFile();
+	printf("Test MD5 Hash for one file path: \n");
+	testHashMD5OneFilePath();
 
-	printf("Test MD5 Hash for multiple files: \n");
-	testHashMD5MultipleFiles();
+	printf("Test MD5 Hash for multiple files paths: \n");
+	testHashMD5MultipleFilesPaths();
 }
 
 
-///TEST//////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-void testHashMD5OneFile()
+void testHashMD5OneFilePath()
 {
-	givenAFile();
-
+	givenAFilePath();
 	whenHashMD5OfTheFileIsCalculated();
-
 	thenTheHashMD5IsReturned();
 }
 
-void testHashMD5MultipleFiles()
-{	
+void testHashMD5MultipleFilesPaths()
+{
 	givenAQueue();
-	givenMultipleFiles();
-
+	givenMultipleFilesPaths();
 	whenMultipleFilesHashesAreCalculated();
-
 	thenTheHashesMD5AreReturned();
 }
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-///GIVEN/////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-void givenAFile()
+void givenAFilePath()
 {
-	fileName = testingFiles[0];
+	fileName = testingFilesPaths[0];
 }
 
 void givenAQueue()
 {
-	queue = createQueue(MAXSIZE);
+	queue = createQueue();
 }
 
-void givenMultipleFiles()
+void givenMultipleFilesPaths()
 {
-	int i;
-	for(i = 0; i < SIZE; i++)
+	for(int filePathIndex = 0; filePathIndex < 5; filePathIndex++)
 	{
-		enqueueFile(testingFiles[i], queue);
+		enqueueFile(testingFilesPaths[filePathIndex], queue);
 	}
 }
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
-///WHEN//////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void whenHashMD5OfTheFileIsCalculated()
 {
@@ -96,10 +80,9 @@ void whenHashMD5OfTheFileIsCalculated()
 
 void whenMultipleFilesHashesAreCalculated()
 {
-	char* file;
-	char* hashMD5Calculated;
+	char * file;
+	char * hashMD5Calculated;
 	int i = 0;
-
 	while(!isEmpty(queue))
 	{
 		file = dequeueFile(queue);
@@ -108,10 +91,7 @@ void whenMultipleFilesHashesAreCalculated()
 		i++;
 	}
 }
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
-///THEN//////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void thenTheHashMD5IsReturned()
 {
@@ -127,11 +107,9 @@ void thenTheHashMD5IsReturned()
 
 void thenTheHashesMD5AreReturned()
 {
-	int i;
-
-	for(i = 0; i < SIZE; i++)
+	for(int hashIndex = 0; hashIndex < 5; hashIndex++)
 	{
-		if(!stringsAreEquals(expectedMD5Hashes[i], calculatedMD5Hashes[i]))
+		if(!stringsAreEquals(expectedMD5Hashes[hashIndex], calculatedMD5Hashes[hashIndex]))
 		{
 			fail("One of the expected MD5 Hashes is different from the calculated one \n");
 			return;
@@ -139,4 +117,3 @@ void thenTheHashesMD5AreReturned()
 	}
 	ok();
 }
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

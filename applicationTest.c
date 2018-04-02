@@ -6,6 +6,7 @@
 #include <string.h>
 #include <dirent.h>
 #include "applicationProcess.h"
+#include "testLib.h"
 
 #define MAX_NAMEPATH 255
 
@@ -24,10 +25,6 @@ void thenVerifyMultiplePipesAreCreated();
 void correctFileTest();
 void takeAFileTest();
 void pipeCreationTest();
-
-void checkIsNotNull(void * pointer);
-void ok();
-void fail(char * failError);
 
 
 char * examplePath = NULL;
@@ -79,32 +76,6 @@ void thenVerifyPathIsNotNull()
 {
 	checkIsNotNull((void *)file);
 }
-
-
-void checkIsNotNull(void * pointer)
-{
-	if (pointer == NULL)
-	{
-		fail("	Expected: a non null pointer, got: a null pointer");
-	}
-	else
-	{
-		ok();
-	}
-}
-
-
-void ok()
-{
-	printf("	Ok!\n");
-}
-
-void fail(char * withError)
-{
-	putchar('\n');
-	fprintf(stderr, "%s", withError);
-}
-
 
 void takeAFileTest()
 {
