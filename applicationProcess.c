@@ -81,6 +81,31 @@ int main(int argc, char const *argv[])
 
 void applicationProcess()
 {
+  fd_set readset;
+  FD_ZERO( &readset );
+  int maxfd = 0;
+  for (int index ; index < MAX_AMOUNT_OF_SLAVES; index++)
+  {
+    FD_SET( slaveApplicationFD[inde] , &readset );
+    maxfd = ( maxfd > slaveApplicationFD[inde])? maxfd : slaveApplicationFD[index];
+  }
+
+  int result;
+  result = select(maxfd+1, &readset ,NULL, NULL, NULL );
+  if (result == -1)
+  {
+    //ERROR;
+  }
+  else
+  {
+    for (int index = 0; index < MAX_AMOUNT_OF_SLAVES; index++)
+    {
+      if (FD_ISSET(slaveApplicationFD[index], &readset))
+      {
+        //Read FD from slave Index
+      }
+    }
+  }
 
 }
 
