@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <unistd.h>
+#include <dirent.h>
 #include <stdio.h>
 #include <stdint.h>
 #include <sys/types.h>
@@ -7,10 +8,8 @@
 #include <errno.h>
 #include "slaveProcess.h"
 #include "fileDescriptors.h"
-#include "queue.h"
 
-int main(int argc, char const *argv[]) {
-
+int main() {
 
 
 	return 0;

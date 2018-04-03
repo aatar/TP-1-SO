@@ -37,7 +37,7 @@ int main(int argc, char const *argv[])
 
   for (int argIndex = 1; argIndex < argc; argIndex++)
   {
-    enqueueFile(argv[argIndex], filesQueue);
+    makeFileQueue(argv[argIndex], filesQueue);
   }
 
 
@@ -79,21 +79,14 @@ int main(int argc, char const *argv[])
   return 0;
 }
 
-void applicationProcess()
-{
-
-}
 
 void makeFileQueue(char * path, queueADT queue)
 {
 	DIR * d = opendir(path);
-	struct dirent * dir = readdir(d);
-  if(dir != NULL) {
-    if(dir-> d_type != DT_DIR)
-    {
-        char d_path[MAX_NAMEPATH];
-        sprintf(d_path, "%s/%s", path, dir->d_name);
-        enqueue(d_path, queue);
-    }
+	if(errno == ENOTDIR)
+  {
+    enqueue(path, queue);
   }
+	closedir(d);
+  return;
 }

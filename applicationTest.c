@@ -42,14 +42,14 @@ queueADT queue;
 
 int main()
 {
-	printf("Testeo de archivos dados: ");
+	printf("File Test: ");
 	correctFileTest();
 
-	printf("Testeo de toma de un archivo: ");
+	printf("Checking File Test: ");
 	takeAFileTest();
 
 	// printf("Testeo de Envio:\n");
-  printf("Testeo de creacion de canales de comunicacion con Hijos:");
+  printf("Pipe Test:");
   pipeCreationTest();
 
   return 0;
@@ -63,26 +63,6 @@ void correctFileTest()
 	thenVerifyPathIsNotNull();
 }
 
-void givenAPath()
-{
-	examplePath = ".";
-}
-
-void givenAQueue()
-{
-	queue = createQueue();
-}
-
-void whenPathIsGiven()
-{
-	file = opendir(examplePath);
-}
-
-void thenVerifyPathIsNotNull()
-{
-	checkIsNotNull((void *)file);
-}
-
 void takeAFileTest()
 {
   givenAPath();
@@ -91,17 +71,22 @@ void takeAFileTest()
   thenCreateFileQueue();
 }
 
-void thenCreateFileQueue()
-{
-  makeFileQueue(examplePath, queue);
-}
-
 void pipeCreationTest()
 {
   givenTheFDS();
   whenPipesAreCreated();
   thenVerifyPipeIsCreated();
   thenVerifyMultiplePipesAreCreated();
+}
+
+void givenAPath()
+{
+	examplePath = ".";
+}
+
+void givenAQueue()
+{
+	queue = createQueue();
 }
 
 void givenTheFDS()
@@ -113,6 +98,12 @@ void givenTheFDS()
   communicationMultiplePipes = malloc(sizeof(int) * sonsAmount * 4);
 }
 
+
+void whenPathIsGiven()
+{
+	file = opendir(examplePath);
+}
+
 void whenPipesAreCreated()
 {
   // pipeCreationFather = pipe(communicationPipes);
@@ -121,6 +112,17 @@ void whenPipesAreCreated()
   {
     multiplePipes[i] = pipe(communicationMultiplePipes + (i * 2));
   }
+}
+
+
+void thenVerifyPathIsNotNull()
+{
+	checkIsNotNull((void *)file);
+}
+
+void thenCreateFileQueue()
+{
+  makeFileQueue(examplePath, queue);
 }
 
 void thenVerifyPipeIsCreated()
