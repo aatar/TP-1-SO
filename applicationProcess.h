@@ -12,4 +12,6 @@ void makeFileQueue(char * path, queueADT queue);
 
 void createProcesses();
 
+void createFile();
+
 #endif
