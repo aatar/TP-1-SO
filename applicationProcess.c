@@ -5,20 +5,25 @@
 #include <string.h>
 #include <dirent.h>
 #include "applicationProcess.h"
+#include "queue.h"
 
-stackNodeCDT * top = NULL;
-int slavesAmount = MAX_AMOUNT_OF_SLAVES;
-int applicationPipes[MAX_AMOUNT_OF_SLAVES * 2];
-int slavesPipes[MAX_AMOUNT_OF_SLAVES * 2];
+queueADT filesQueue;
+queueADT hashedFilesQueue;
+int applicationPipes[MAX_AMOUNT_OF_PIPES];
+int slavesPipes[MAX_AMOUNT_OF_PIPES];
 int pidSlaves[MAX_AMOUNT_OF_SLAVES];
 char buffer[256];
 
 int main(int argc, char const *argv[])
 {
-  if(!pathIsCorrect(argc, argv))
+  if(argc < 2)
   {
+    printf("You haven't passed a valid pattern\n");
     return 1;
   }
+
+  filesQueue = createQueue();
+  hashedFilesQueue = createQueue();
   //vector de pipelines
   // Forks ()
   // while y switch
@@ -28,49 +33,31 @@ int main(int argc, char const *argv[])
   * 2- Mandarlo a Archivo
   * 3- Le mando un archivo al esclavo mientras tenga archivos a procesar.
   */
-  makeStack(argv[1]);
-  createPipes();
-  int applicationPID = getpid();
-  createProcesses();
+  makeFileQueue(argv[1], filesQueue);
 
-  return 0;
-}
-
-int pathIsCorrect(int argc, char const * argv[])
-{
-  if(argc < 2)
-  {
-    printf("No se ha ingresado ningun argumento valido\n");
-    return 1;
-  }
-  DIR * file = opendir(argv[1]);
-
-  if (file == NULL)
-  {
-    printf("Path ingresado no corresponde a un path existente\n", );
-    return 1;
-  }
-  return 0;
-
-}
-
-void createPipes()
-{
+  // creating pipes
   for (int pipeIndex = 0; pipeIndex < MAX_AMOUNT_OF_SLAVES; pipeIndex++)
   {
     pipe(applicationPipes + (pipeIndex * 2));
     pipe(slavesPipes + (pipeIndex * 2));
   }
+
+
+  int applicationPID = getpid();
+  createProcesses(applicationPID);
+
+  return 0;
 }
 
-void createProcesses()
+
+void createProcesses(int applicationPID)
 {
   int pidChild;
   for (int index = 0; index < MAX_AMOUNT_OF_SLAVES; index++) {
     switch (pidChild = fork()) {
       case -1:
-        // mensaje de error
-        exit(1);
+        perror("Fork failed\n");
+        abort();
         break;
       case 0:
         int myValue = index;
@@ -160,7 +147,7 @@ void answerSlaveRequest(int slaveIndex)
   }
 }
 
-void makeStack(char * path)
+void makeFileQueue(char * path, queueADT queue)
 {
 	DIR * d = opendir(path);
 	struct dirent * dir;
@@ -170,7 +157,7 @@ void makeStack(char * path)
       {
           char d_path[MAX_NAMEPATH];
         	sprintf(d_path, "%s/%s", path, dir->d_name);
-        	push(d_path);
+        	enqueue(d_path, queue);
       }
       else
       {
@@ -178,33 +165,8 @@ void makeStack(char * path)
       	{
         	char d_path[MAX_NAMEPATH]; // here I am using sprintf which is safer than strcat
         	sprintf(d_path, "%s/%s", path, dir->d_name);
-        	makeStack(d_path); // recall with the new path
+        	makeFileQueue(d_path, queue); // recall with the new path
       	}
       }
   }
-}
-
-
-
-void push(char * item)
-{
-    stackNodeCDT * nptr = malloc(sizeof(stackNodeCDT));
-    nptr->path = item;
-    nptr->next = top;
-    top = nptr;
-}
-
-int isEmpty()
-{
-	return top == NULL;
-}
-
-char * pop()
-{
-    stackNodeCDT * temp;
-    temp = top;
-    top = top->next;
-    char * resp = temp->path;
-    free(temp);
-    return resp;
 }

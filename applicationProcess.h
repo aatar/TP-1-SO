@@ -1,23 +1,15 @@
 #ifndef APPLICATION_PROCESS_H
 #define APPLICATION_PROCESS_H
 
+#include "queue.h"
+
 #define MAX_NAMEPATH 255
 #define MAX_AMOUNT_OF_SLAVES 5;
+#define MAX_AMOUNT_OF_PIPES 10;
 
-void push(char * path);
-char * pop();
-int isEmpty();
-void makeStack(char * path);
 
-void pathIsCorrect(char const * argv[]);
-void createPipes();
+void makeFileQueue(char * path, queueADT queue);
+
 void createProcesses();
-
-typedef struct
-{
-    char * path;
-    struct stackNodeCDT *next;
-} stackNodeCDT;
-
 
 #endif

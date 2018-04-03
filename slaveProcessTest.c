@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include "testLib.h"
 #include "slaveProcess.h"
-#include "queueOfFiles.h"
+#include "queue.h"
 
 void testHashMD5OneFilePath();
 void testHashMD5MultipleFilesPaths();
@@ -68,7 +68,7 @@ void givenMultipleFilesPaths()
 {
 	for(int filePathIndex = 0; filePathIndex < 5; filePathIndex++)
 	{
-		enqueueFile(testingFilesPaths[filePathIndex], queue);
+		enqueue(testingFilesPaths[filePathIndex], queue);
 	}
 }
 
@@ -85,7 +85,7 @@ void whenMultipleFilesHashesAreCalculated()
 	int i = 0;
 	while(!isEmpty(queue))
 	{
-		file = dequeueFile(queue);
+		file = dequeue(queue);
 		hashMD5Calculated = calculateFileMD5Hash(file);
 		calculatedMD5Hashes[i] = hashMD5Calculated;
 		i++;

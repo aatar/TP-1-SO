@@ -7,10 +7,12 @@
 #include <dirent.h>
 #include "applicationProcess.h"
 #include "testLib.h"
+#include "queue.h"
 
 #define MAX_NAMEPATH 255
 
 void givenAPath();
+void givenAQueue();
 void givenTheFDS();
 
 void whenPathIsGiven();
@@ -18,7 +20,7 @@ void whenPipesAreCreated();
 
 void thenVerifyPathIsCorrect();
 void thenVerifyPathIsNotNull();
-void thenCreateStack();
+void thenCreateFileQueue();
 void thenVerifyPipeIsCreated();
 void thenVerifyMultiplePipesAreCreated();
 
@@ -36,8 +38,7 @@ int pipeCreationFather;
 int pipeCreationSon;
 int multiplePipes[4];
 int sonsAmount = 2;
-
-stackNodeCDT * top = NULL;
+queueADT queue;
 
 int main()
 {
@@ -67,6 +68,11 @@ void givenAPath()
 	examplePath = ".";
 }
 
+void givenAQueue()
+{
+	queue = createQueue();
+}
+
 void whenPathIsGiven()
 {
 	file = opendir(examplePath);
@@ -80,13 +86,14 @@ void thenVerifyPathIsNotNull()
 void takeAFileTest()
 {
   givenAPath();
+	givenAQueue();
   whenPathIsGiven();
-  thenCreateStack();
+  thenCreateFileQueue();
 }
 
-void thenCreateStack()
+void thenCreateFileQueue()
 {
-  makeStack(examplePath);
+  makeFileQueue(examplePath, queue);
 }
 
 void pipeCreationTest()
@@ -158,53 +165,4 @@ void thenVerifyMultiplePipesAreCreated()
       ok();
     }
   }
-}
-
-void makeStack(char * path)
-{
-	DIR * d = opendir(path);
-	struct dirent * dir;
- 	while ((dir = readdir(d)) != NULL)
-  {
-    	if(dir-> d_type != DT_DIR)
-      {
-          char d_path[MAX_NAMEPATH];
-        	sprintf(d_path, "%s/%s", path, dir->d_name);
-        	push(d_path);
-      }
-      else
-      {
-      	if(strcmp(dir->d_name,".") != 0 && strcmp(dir->d_name,"..") != 0 )
-      	{
-        	char d_path[MAX_NAMEPATH]; // here I am using sprintf which is safer than strcat
-        	sprintf(d_path, "%s/%s", path, dir->d_name);
-        	makeStack(d_path); // recall with the new path
-      	}
-      }
-  }
-}
-
-
-
-void push(char * item)
-{
-    stackNodeCDT * nptr = malloc(sizeof(stackNodeCDT));
-    nptr->path = item;
-    nptr->next = top;
-    top = nptr;
-}
-
-int isEmpty()
-{
-	return top == NULL;
-}
-
-char * pop()
-{
-    stackNodeCDT * temp;
-    temp = top;
-    top = top->next;
-    char * resp = temp->path;
-    free(temp);
-    return resp;
 }

@@ -1,11 +1,11 @@
-#ifndef QUEUE_OF_FILES_H
-#define QUEUE_OF_FILES_H
+#ifndef QUEUE_H
+#define QUEUE_H
 
 typedef struct nodeCDT * nodeADT;
 
 typedef struct nodeCDT
 {
-	char* fileName;
+	char* data;
 	nodeADT next;
 }nodeCDT;
 
@@ -19,8 +19,8 @@ typedef struct queueCDT
 }queueCDT;
 
 queueADT createQueue();
-void enqueueFile(char * fileName, queueADT queue);
-char * dequeueFile(queueADT queue);
+void enqueue(char * data, queueADT queue);
+char * dequeue(queueADT queue);
 int isEmpty(queueADT queue);
 int getQueueCurrentSize(queueADT queue);
 

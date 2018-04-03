@@ -7,7 +7,7 @@
 #include <errno.h>
 #include "slaveProcess.h"
 #include "fileDescriptors.h"
-#include "queueOfFiles.h"
+#include "queue.h"
 
 char * calculateFileMD5Hash(char * fileName)
 {
