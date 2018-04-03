@@ -9,6 +9,13 @@
 #include "fileDescriptors.h"
 #include "queue.h"
 
+int main(int argc, char const *argv[]) {
+
+
+
+	return 0;
+}
+
 char * calculateFileMD5Hash(char * fileName)
 {
 	int status = 0;
