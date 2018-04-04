@@ -17,4 +17,6 @@ int thereAreSlavesAlive();
 void closeAll();
 
 
+void createFile();
+
 #endif
