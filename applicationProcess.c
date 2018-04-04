@@ -30,10 +30,13 @@ char * calculatedMD5Hashes[] = {"4d186321c1a7f0f354b297e8914ab240",
 							 "61938292ca4cf3be12141ab6bc01c1d3",
 							 "1683e3c47cf7a46dc308a70ca7d016c2",
 							 "f130f9b486ae8f768161a710163ac80e"};
+
+
 int main(int argc, char const *argv[])
 {
-  char * applicationSlavePipeName;
-  char * slaveApplicationPipeName;
+
+  char applicationSlavePipeName[MAX_PIPENAME_LENGTH];
+  char slaveApplicationPipeName[MAX_PIPENAME_LENGTH];
 
   if(argc < 2)
   {
@@ -54,46 +57,33 @@ int main(int argc, char const *argv[])
   int applicationPID = getpid();
 
   int slavePID;
-  for (int index = 0; index < MAX_AMOUNT_OF_SLAVES; index++) {
+  for (int index = 0; index < 5; index++) {
     switch (slavePID = fork()) {
       case -1:
         perror("Fork failed\n");
         exit(1);
         break;
       case 0:
-
-        //exec slave;
-        execlp("./slaveProcess.o", "slaveProcess.o", NULL);
+        execlp("./slaveProcess", "slaveProcess", NULL);
         perror("Slave process exec() failed. Exitting.");
         exit(1);
         break;
       default:
-
         pidSlaves[index] = slavePID;
-        sprintf(applicationSlavePipeName, "/tmp/%d%d", applicationPID, slavePID);
-        sprintf(slaveApplicationPipeName, "/tmp/%d%d", slavePID, applicationPID);
+        sprintf(applicationSlavePipeName, "./%d%d", applicationPID, slavePID);
+        sprintf(slaveApplicationPipeName, "./%d%d", slavePID, applicationPID);
+        sleep(1);
         mkfifo(applicationSlavePipeName, 0666);
         mkfifo(slaveApplicationPipeName, 0666);
         applicationSlaveFD[index] = open(applicationSlavePipeName, O_WRONLY);
         slaveApplicationFD[index] = open(slaveApplicationPipeName, O_RDONLY);
         break;
     }
+		while(thereAreSlavesAlive())
+		{
+				applicationProcess();
+		}
   }
-  /*int viewPID;
-  *switch de mierda
-  *if(viewPID = fork())
-  *{
-  * Soy VIsta, WIndowsVista
-  *}
-  *else
-  *{
-  * Soy el fucking application
-  * while (thereAreSlavesAlive){
-    applicationProcess();
-  *  }
-  * }
-  */
-
 
   return 0;
 }
@@ -131,9 +121,9 @@ void applicationProcess()
 
 int thereAreSlavesAlive()
 {
-  for(int x=0; x < MAX_AMOUNT_OF_SLAVES; x++)
+  for(int slaveIndex = 0; slaveIndex < MAX_AMOUNT_OF_SLAVES; slaveIndex++)
   {
-    if(pidSlaves[x] > 0)
+    if(pidSlaves[slaveIndex] > 0)
     {
       return 1;
     }
@@ -146,14 +136,12 @@ void readSlavePipe(int index)
   int nbytes;
   char buffer[MAX_BUFFER_SIZE];
   bzero(buffer, MAX_BUFFER_SIZE);
-  nbytes = read( slaveApplicationFD[index] , buffer, MAX_BUFFER_SIZE);
+  nbytes = read(slaveApplicationFD[index] , buffer, MAX_BUFFER_SIZE);
+  printf("%s\n", buffer);
   if (!strncmp(WAITING_MESSAGE, buffer, nbytes))
   {
     enqueue(buffer, hashedFilesQueue);
     enqueue(buffer, finalQueue);
-    //Buffer contiene Resultado archivo;
-    //Agregar a la queue;
-    //Agregar a Archivo.
   }
    answerSlaveRequest(index);;
    return;
@@ -188,48 +176,28 @@ void makeFileQueue(char * path, queueADT queue)
 
 void closeAll()
 {
-
+  // close shm and fd
 }
 
-void createFile()
-{
-    /* Variable to store user content */
-    char data[DATA_SIZE];
-	
-	/* File pointer to hold reference to our file */
-    FILE * fPtr;
-
-
-    /* 
-     * Open file in w (write) mode. 
-     * "data/file1.txt" is complete path to create file
-     */
-    fPtr = fopen("fileOutput.txt", "w");
-
-
-    /* fopen() return NULL if last operation was unsuccessful */
-    if(fPtr == NULL)
-    {
-        /* File not created hence exit */
-        printf("Unable to create file.\n");
-        exit(EXIT_FAILURE);
-    }
-
-
-    /* Input contents from user to store in file */
-	strcpy(data,"");
-    int i;
-	for(i = 0; i < FILES_COUNT; i++) {
-		strcat(data, testingFilesPaths[i]);
-		strcat(data, " ");
-		strcat(data, calculatedMD5Hashes[i]);
-		strcat(data, "\t");
-	}
-	
-	/* Write contents to file */
-    fputs(data, fPtr);
-
-
-    /* Close file to save contents */
-    fclose(fPtr);
-}
+// void createFile()
+// {
+//   char userContent[FINAL_FILE_SIZE];
+//   FILE * fPtr;
+//   fPtr = fopen("fileOutput.txt", "w");
+//
+//   if(fPtr == NULL)
+//   {
+//     printf("Unable to create file.\n");
+//     exit(10);
+//   }
+//
+// 	strcpy(userContent, "");
+// 	for(int i = 0; i < FILES_COUNT; i++) {
+// 		strcat(userContent, testingFilesPaths[i]);
+// 		strcat(userContent, ": ");
+// 		strcat(userContent, calculatedMD5Hashes[i]);
+// 		strcat(userContent, "\t");
+// 	}
+//   fputs(userContent, fPtr);
+//   fclose(fPtr);
+// }

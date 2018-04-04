@@ -14,27 +14,27 @@
 #include "applicationProcess.h"
 
 int main() {
+	char inputBuffer [MAX_NAMEPATH];
+	char * fileAndHash = malloc(sizeof(char) * MAX_BUFFER_SIZE);
+	char message [MAX_BUFFER_SIZE];
+	int nbytes;
+	int applicationSlaveFD;
+	int slaveApplicationFD;
 	int bucle = 1;
 	int applicationPID = getppid();
 	int slavePID = getpid();
 
-	char * applicationSlavePipeName;
-	char * slaveApplicationPipeName;
-	sprintf(applicationSlavePipeName, "/tmp/%d%d", applicationPID, slavePID);
-	sprintf(slaveApplicationPipeName, "/tmp/%d%d", slavePID, applicationPID);
-	int applicationSlaveFD;
-	int slaveApplicationFD;
+	char applicationSlavePipeName[MAX_PIPENAME_LENGTH];
+	char slaveApplicationPipeName[MAX_PIPENAME_LENGTH];
+	sprintf(applicationSlavePipeName, "./%d%d", applicationPID, slavePID);
+	sprintf(slaveApplicationPipeName, "./%d%d", slavePID, applicationPID);
 	mkfifo(applicationSlavePipeName, 0666);
 	mkfifo(slaveApplicationPipeName, 0666);
 	applicationSlaveFD = open(applicationSlavePipeName, O_RDONLY);
 	slaveApplicationFD = open(slaveApplicationPipeName, O_WRONLY);
-	char message [MAX_BUFFER_SIZE];
 	bzero(message, MAX_BUFFER_SIZE);
 	strncpy(message, WAITING_MESSAGE, MAX_NAMEPATH);
 	write(slaveApplicationFD, message, strlen(message));
-	int nbytes;
-	char inputBuffer [MAX_NAMEPATH];
-	char * fileAndHash;
 	while(bucle) {
 			bzero(inputBuffer, MAX_NAMEPATH);
 			nbytes= read(applicationSlaveFD, inputBuffer, MAX_NAMEPATH);
