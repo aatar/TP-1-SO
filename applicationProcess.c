@@ -11,12 +11,6 @@
 #include "applicationProcess.h"
 #include "queue.h"
 
-#define MAX_NAMEPATH 255
-#define MAX_BUFFER_SIZE 290
-#define MAX_AMOUNT_OF_SLAVES 5
-#define KILL_MESSAGE "KILL"
-#define WAITING_MESSAGE "WAITING"
-
 queueADT filesQueue;
 queueADT hashedFilesQueue;
 queueADT finalQueue;
@@ -65,8 +59,6 @@ int main(int argc, char const *argv[])
       default:
 
         pidSlaves[index] = slavePID;
-        int applicationSlaveFD;
-        int slaveApplicationFD;
         sprintf(applicationSlavePipeName, "/tmp/%d%d", applicationPID, slavePID);
         sprintf(slaveApplicationPipeName, "/tmp/%d%d", slavePID, applicationPID);
         mkfifo(applicationSlavePipeName, 0666);
