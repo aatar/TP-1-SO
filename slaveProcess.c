@@ -10,8 +10,12 @@
 #include "fileDescriptors.h"
 
 int main() {
+	int bucle = 1;
+	while(bucle) {
 
 
+
+	}
 	return 0;
 }
 
@@ -37,24 +41,21 @@ char * calculateFileMD5Hash(char * fileName)
 	}
 	else if (pid == 0)
 	{
-		// replace standard output with output part of pipe
 		dup2(fileDescriptors[1], STDOUT);
-		// close unused end of pipe
 		close(fileDescriptors[0]);
-		//execute md5 hash
 		executeMD5HashCommand(fileName);
 	}
 
-	// replace standard input with output part of pipe
 	dup2(fileDescriptors[0], STDIN);
-	// close unused end of pipe
 	close(fileDescriptors[1]);
-
 	wait(&status);
 
 	scanf("%s", hashCalculated);
 	while(scanf("%s", dump) > 0)
-	return hashCalculated;
+
+	char * fileWithHash;
+	sprintf(fileWithHash, "%s: %s", fileName, hashCalculated);
+	return fileWithHash;
 }
 
 void executeMD5HashCommand(char * fileName)

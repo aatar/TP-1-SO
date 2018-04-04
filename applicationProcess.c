@@ -12,10 +12,14 @@
 #include "queue.h"
 
 #define MAX_NAMEPATH 255
-#define MAX_AMOUNT_OF_SLAVES 5;
+#define MAX_BUFFER_SIZE 290
+#define MAX_AMOUNT_OF_SLAVES 5
+#define KILL_MESSAGE "KILL"
+#define WAITING_MESSAGE "WAITING"
 
 queueADT filesQueue;
 queueADT hashedFilesQueue;
+queueADT finalQueue;
 int pidSlaves[MAX_AMOUNT_OF_SLAVES];
 int applicationSlaveFD[MAX_AMOUNT_OF_SLAVES];
 int slaveApplicationFD[MAX_AMOUNT_OF_SLAVES];
@@ -34,6 +38,7 @@ int main(int argc, char const *argv[])
 
   filesQueue = createQueue();
   hashedFilesQueue = createQueue();
+  finalQueue = createQueue();
 
   for (int argIndex = 1; argIndex < argc; argIndex++)
   {
@@ -71,9 +76,20 @@ int main(int argc, char const *argv[])
         break;
     }
   }
-
-  // bucle
-
+  /*int viewPID;
+  *switch de mierda
+  *if(viewPID = fork())
+  *{
+  * Soy VIsta, WIndowsVista
+  *}
+  *else
+  *{
+  * Soy el fucking application
+  * while (thereAreSlavesAlive){
+    applicationProcess();
+  *  }
+  * }
+  */
 
 
   return 0;
@@ -82,19 +98,20 @@ int main(int argc, char const *argv[])
 void applicationProcess()
 {
   fd_set readset;
-  FD_ZERO( &readset );
+  FD_ZERO(&readset);
   int maxfd = 0;
-  for (int index ; index < MAX_AMOUNT_OF_SLAVES; index++)
+  for (int index; index < MAX_AMOUNT_OF_SLAVES; index++)
   {
-    FD_SET( slaveApplicationFD[inde] , &readset );
-    maxfd = ( maxfd > slaveApplicationFD[inde])? maxfd : slaveApplicationFD[index];
+    FD_SET(slaveApplicationFD[index], &readset);
+    maxfd = (maxfd > slaveApplicationFD[index]) ? maxfd : slaveApplicationFD[index];
   }
 
   int result;
-  result = select(maxfd+1, &readset ,NULL, NULL, NULL );
+  result = select(maxfd + 1, &readset ,NULL, NULL, NULL );
   if (result == -1)
   {
-    //ERROR;
+    perror("Select failed\n");
+    exit(1);
   }
   else
   {
@@ -102,11 +119,57 @@ void applicationProcess()
     {
       if (FD_ISSET(slaveApplicationFD[index], &readset))
       {
-        //Read FD from slave Index
+        readSlavePipe(index);
       }
     }
   }
 
+}
+
+int thereAreSlavesAlive()
+{
+  for(int x=0; x < MAX_AMOUNT_OF_SLAVES; x++)
+  {
+    if(slavePID[x] > 0)
+    {
+      return 1;
+    }
+  }
+  return 0;
+}
+
+void readSlavePipe(int index)
+{
+  int nbytes;
+  char buffer[MAX_BUFFER_SIZE];
+  bzero(buffer, MAX_BUFFER_SIZE);
+  nbytes = read( slaveApplicationFD[index] , buffer, MAX_BUFFER_SIZE);
+  if (!strncmp(WAITING_MESSAGE, buffer, nbytes))
+  {
+    enqueue(buffer, hashedFilesQueue);
+    enqueue(buffer, finalQueue);
+    //Buffer contiene Resultado archivo;
+    //Agregar a la queue;
+    //Agregar a Archivo.
+  }
+   answerSlaveRequest(index);;
+   return;
+}
+
+void answerSlaveRequest(int index)
+{
+  char applicationOutputBuffer[MAX_NAMEPATH];
+  bzero(applicationOutputBuffer, MAX_NAMEPATH);
+  if(isEmpty(filesQueue))
+  {
+    strcpy(applicationOutputBuffer, KILL_MESSAGE);
+    pidSlaves[index] = -1;
+  }
+  else
+  {
+    strcpy(applicationOutputBuffer, dequeue(filesQueue));
+  }
+  write(applicationSlaveFD[Index] , applicationOutputBuffer, strlen(applicationOutputBuffer));
 }
 
 void makeFileQueue(char * path, queueADT queue)
@@ -118,4 +181,9 @@ void makeFileQueue(char * path, queueADT queue)
   }
 	closedir(d);
   return;
+}
+
+void closeAll()
+{
+
 }
