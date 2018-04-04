@@ -7,6 +7,8 @@
 #include <sys/wait.h>
 #include <errno.h>
 #include <strings.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 #include "slaveProcess.h"
 #include "fileDescriptors.h"
 #include "applicationProcess.h"
@@ -52,8 +54,9 @@ int main() {
 char * calculateFileMD5Hash(char * fileName)
 {
 	int status = 0;
-	char * hashCalculated = malloc(sizeof(char)*32);
-	char * dump = malloc(sizeof(char)*1000);
+	char * hashCalculated = malloc(sizeof(char) * 32);
+	char * dump = malloc(sizeof(char) * 1000);
+	char * fileWithHash = malloc(sizeof(char) * MAX_BUFFER_SIZE);
 	int fileDescriptors[2];
 	pid_t pid;
 
@@ -83,7 +86,6 @@ char * calculateFileMD5Hash(char * fileName)
 	scanf("%s", hashCalculated);
 	while(scanf("%s", dump) > 0)
 
-	char * fileWithHash;
 	sprintf(fileWithHash, "%s: %s", fileName, hashCalculated);
 	return fileWithHash;
 }

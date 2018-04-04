@@ -8,6 +8,7 @@
 #include <fcntl.h>
 #include <stdlib.h>
 #include <signal.h>
+#include <errno.h>
 #include "applicationProcess.h"
 #include "queue.h"
 
@@ -122,7 +123,7 @@ int thereAreSlavesAlive()
 {
   for(int x=0; x < MAX_AMOUNT_OF_SLAVES; x++)
   {
-    if(slavePID[x] > 0)
+    if(pidSlaves[x] > 0)
     {
       return 1;
     }
@@ -161,7 +162,7 @@ void answerSlaveRequest(int index)
   {
     strcpy(applicationOutputBuffer, dequeue(filesQueue));
   }
-  write(applicationSlaveFD[Index] , applicationOutputBuffer, strlen(applicationOutputBuffer));
+  write(applicationSlaveFD[index] , applicationOutputBuffer, strlen(applicationOutputBuffer));
 }
 
 void makeFileQueue(char * path, queueADT queue)
