@@ -13,9 +13,6 @@
 #include "applicationProcess.h"
 #include "queue.h"
 
-#define DATA_SIZE 1000
-#define FILES_COUNT 5
-
 queueADT filesQueue;
 queueADT hashedFilesQueue;
 queueADT finalQueue;
@@ -23,13 +20,6 @@ int pidSlaves[MAX_AMOUNT_OF_SLAVES];
 int applicationSlaveFD[MAX_AMOUNT_OF_SLAVES];
 int slaveApplicationFD[MAX_AMOUNT_OF_SLAVES];
 char buffer[256];
-char * testingFilesPaths[] = {"file1.txt", "file2.txt", "file3.txt", "file4.txt", "file5.txt"};
-
-char * calculatedMD5Hashes[] = {"4d186321c1a7f0f354b297e8914ab240",
-							 "cdcf8d0131420ccecc2e769f5db62e1b",
-							 "61938292ca4cf3be12141ab6bc01c1d3",
-							 "1683e3c47cf7a46dc308a70ca7d016c2",
-							 "f130f9b486ae8f768161a710163ac80e"};
 
 
 int main(int argc, char const *argv[])
@@ -40,7 +30,7 @@ int main(int argc, char const *argv[])
 
   if(argc < 2)
   {
-    printf("You haven't passed a valid pattern\n");
+    printf("You haven't passed any pattern\n");
     return 1;
   }
 
@@ -57,7 +47,7 @@ int main(int argc, char const *argv[])
   int applicationPID = getpid();
 
   int slavePID;
-  for (int index = 0; index < 5; index++) {
+  for (int index = 0; index < 1; index++) {
     switch (slavePID = fork()) {
       case -1:
         perror("Fork failed\n");
@@ -70,8 +60,8 @@ int main(int argc, char const *argv[])
         break;
       default:
         pidSlaves[index] = slavePID;
-        sprintf(applicationSlavePipeName, "./%d%d", applicationPID, slavePID);
-        sprintf(slaveApplicationPipeName, "./%d%d", slavePID, applicationPID);
+        sprintf(applicationSlavePipeName, "/tmp/%d%d", applicationPID, slavePID);
+        sprintf(slaveApplicationPipeName, "/tmp/%d%d", slavePID, applicationPID);
         sleep(1);
         mkfifo(applicationSlavePipeName, 0666);
         mkfifo(slaveApplicationPipeName, 0666);
@@ -84,7 +74,7 @@ int main(int argc, char const *argv[])
 				applicationProcess();
 		}
   }
-
+  closeAll();
   return 0;
 }
 
@@ -93,13 +83,13 @@ void applicationProcess()
   fd_set readset;
   FD_ZERO(&readset);
   int maxfd = 0;
+  int result;
   for (int index; index < MAX_AMOUNT_OF_SLAVES; index++)
   {
     FD_SET(slaveApplicationFD[index], &readset);
     maxfd = (maxfd > slaveApplicationFD[index]) ? maxfd : slaveApplicationFD[index];
   }
 
-  int result;
   result = select(maxfd + 1, &readset ,NULL, NULL, NULL );
   if (result == -1)
   {
@@ -138,7 +128,7 @@ void readSlavePipe(int index)
   bzero(buffer, MAX_BUFFER_SIZE);
   nbytes = read(slaveApplicationFD[index] , buffer, MAX_BUFFER_SIZE);
   printf("%s\n", buffer);
-  if (!strncmp(WAITING_MESSAGE, buffer, nbytes))
+  if (strncmp(WAITING_MESSAGE, buffer, nbytes) != 0)
   {
     enqueue(buffer, hashedFilesQueue);
     enqueue(buffer, finalQueue);
@@ -160,6 +150,7 @@ void answerSlaveRequest(int index)
   {
     strcpy(applicationOutputBuffer, dequeue(filesQueue));
   }
+  printf("asR: %s\n", applicationOutputBuffer);
   write(applicationSlaveFD[index] , applicationOutputBuffer, strlen(applicationOutputBuffer));
 }
 
@@ -176,6 +167,7 @@ void makeFileQueue(char * path, queueADT queue)
 
 void closeAll()
 {
+  printf("Chau");
   // close shm and fd
 }
 

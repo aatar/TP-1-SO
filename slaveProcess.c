@@ -26,8 +26,8 @@ int main() {
 
 	char applicationSlavePipeName[MAX_PIPENAME_LENGTH];
 	char slaveApplicationPipeName[MAX_PIPENAME_LENGTH];
-	sprintf(applicationSlavePipeName, "./%d%d", applicationPID, slavePID);
-	sprintf(slaveApplicationPipeName, "./%d%d", slavePID, applicationPID);
+	sprintf(applicationSlavePipeName, "/tmp/%d%d", applicationPID, slavePID);
+	sprintf(slaveApplicationPipeName, "/tmp/%d%d", slavePID, applicationPID);
 	mkfifo(applicationSlavePipeName, 0666);
 	mkfifo(slaveApplicationPipeName, 0666);
 	applicationSlaveFD = open(applicationSlavePipeName, O_RDONLY);
@@ -38,12 +38,14 @@ int main() {
 	while(bucle) {
 			bzero(inputBuffer, MAX_NAMEPATH);
 			nbytes= read(applicationSlaveFD, inputBuffer, MAX_NAMEPATH);
-			if (strncmp(KILL_MESSAGE, inputBuffer, nbytes))
+			printf("%d: %s\n", slavePID, inputBuffer);
+			if (strncmp(KILL_MESSAGE, inputBuffer, nbytes) == 0)
 			{
 				bucle = 0;
 			}
 			else
 			{
+				bzero(fileAndHash, MAX_BUFFER_SIZE);
 				fileAndHash = calculateFileMD5Hash(inputBuffer);
 				write(slaveApplicationFD, fileAndHash, strlen(fileAndHash));
 			}
