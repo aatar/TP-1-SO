@@ -9,7 +9,32 @@
 
 
 int main(int argc, char *argv[]) {
+  int bucle = 1;
+  sem_t *s = sem_open("/sem",O_RDWR);
 
+  if (s == NULL)
+  {
+    perror("sem_open failed");
 
-    return 0;
+  }
+
+  while(bucle)
+  {
+    sem_wait(s);
+    //read
+    for (s = p; *s != '\0'; s++)
+    {
+      putchar(*s);
+
+    }
+    putchar('\n');
+
+    sem_post(s);
+
+  }
+
+  //free like
+
+  shmdt(p);
+  return 0;
 }
