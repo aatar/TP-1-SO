@@ -112,12 +112,8 @@ int main(int argc, char const *argv[])
 			applicationProcess();
 		}
   }
-<<<<<<< HEAD
 
   kill(pidVista, SIGKILL);
-=======
-  createFile();
->>>>>>> 9114ec8a4b3fe6511de3b82a3613ac528e9e404d
   closeAll();
   return 0;
   }
@@ -172,16 +168,10 @@ void readSlavePipe(int index)
   nbytes = read(slaveApplicationFD[index] , buffer, MAX_BUFFER_SIZE);
   if (strncmp(WAITING_MESSAGE, buffer, nbytes))
   {
-<<<<<<< HEAD
-    enqueue(buffer, hashedFilesQueue);
-    enqueue(buffer, finalQueue);
-
-=======
     strcat(finalValues, buffer);
   	strcat(finalValues, "\r\n");
 
-    /*
->>>>>>> 9114ec8a4b3fe6511de3b82a3613ac528e9e404d
+
     sem_wait(sema);
 		//Write message
 		s = p;
