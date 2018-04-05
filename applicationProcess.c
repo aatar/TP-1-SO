@@ -12,6 +12,7 @@
 #include <errno.h>
 #include "applicationProcess.h"
 #include "queue.h"
+#include <semaphore.h>
 
 queueADT filesQueue;
 queueADT hashedFilesQueue;
@@ -20,10 +21,35 @@ int pidSlaves[MAX_AMOUNT_OF_SLAVES];
 int applicationSlaveFD[MAX_AMOUNT_OF_SLAVES];
 int slaveApplicationFD[MAX_AMOUNT_OF_SLAVES];
 char buffer[256];
+/*
+int shmsegid;
+char *p, *s;
+char c;
+sem_t * sema;
+*/
 
 
 int main(int argc, char const *argv[])
 {
+  /*
+  sem_unlink("/sem");
+  sema = sem_open("/sem",O_CREAT|O_EXCL,0777,1);
+
+  //Crear memoria
+  shmsegid = shmget(1237, 1024, IPC_CREAT | 0666);
+
+  if (shmsegid < 0)
+  {
+    perror("shmget failed: ");
+  }
+  // Attach memoria a nuestro address space
+  p = shmat(shmsegid, 0 , 0);
+
+  if (p == (char *) -1)
+  {
+      perror("shmat failed: ");
+  }
+  */
 
   char applicationSlavePipeName[MAX_PIPENAME_LENGTH];
   char slaveApplicationPipeName[MAX_PIPENAME_LENGTH];
@@ -67,17 +93,22 @@ int main(int argc, char const *argv[])
         mkfifo(slaveApplicationPipeName, 0666);
         applicationSlaveFD[index] = open(applicationSlavePipeName, O_WRONLY);
         slaveApplicationFD[index] = open(slaveApplicationPipeName, O_RDONLY);
+        answerSlaveRequest(index);
         break;
     }
-		while(thereAreSlavesAlive())
+
+    // Aca va el fork de vista
+
+    while(thereAreSlavesAlive())
 		{
-      printf("%d\n", thereAreSlavesAlive());
+      printf("", thereAreSlavesAlive());
 			applicationProcess();
 		}
   }
+
   closeAll();
   return 0;
-}
+  }
 
 void applicationProcess()
 {
@@ -128,11 +159,21 @@ void readSlavePipe(int index)
   char buffer[MAX_BUFFER_SIZE];
   bzero(buffer, MAX_BUFFER_SIZE);
   nbytes = read(slaveApplicationFD[index] , buffer, MAX_BUFFER_SIZE);
-  printf("%s\n", buffer);
-  if (strncmp(WAITING_MESSAGE, buffer, nbytes) != 0)
+  if (strncmp(WAITING_MESSAGE, buffer, nbytes))
   {
     enqueue(buffer, hashedFilesQueue);
     enqueue(buffer, finalQueue);
+    /*
+    sem_wait(sema);
+		//Write message
+		s = p;
+  	for (c = 0; c < strlen(buffer); c++)
+		{
+				*s++ = buffer[c];
+		}
+  	*s = '\0';
+		sem_post(sema);
+    */
   }
    answerSlaveRequest(index);;
    return;
@@ -151,11 +192,10 @@ void answerSlaveRequest(int index)
   {
     strcpy(applicationOutputBuffer, dequeue(filesQueue));
   }
-  printf("asR: %s\n", applicationOutputBuffer);
   write(applicationSlaveFD[index] , applicationOutputBuffer, strlen(applicationOutputBuffer));
 }
 
-void makeFileQueue(const char * path, queueADT queue)
+void makeFileQueue(char * path, queueADT queue)
 {
 	DIR * d = opendir(path);
 	if(errno == ENOTDIR)
@@ -168,7 +208,18 @@ void makeFileQueue(const char * path, queueADT queue)
 
 void closeAll()
 {
-  printf("Chau\n");
+  char applicationSlavePipeName[MAX_PIPENAME_LENGTH];
+  char slaveApplicationPipeName[MAX_PIPENAME_LENGTH];
+  int applicationPID = getpid();
+  printf("Bye\n");
+  for (int i = 0; i < MAX_AMOUNT_OF_SLAVES; i++) {
+    close(applicationSlaveFD[i]);
+    close(slaveApplicationFD[i]);
+    sprintf(applicationSlavePipeName, "/tmp/%d%d", applicationPID, pidSlaves[i]);
+    sprintf(slaveApplicationPipeName, "/tmp/%d%d", pidSlaves[i], applicationPID);
+    unlink(applicationSlavePipeName);
+    unlink(slaveApplicationPipeName);
+  }
   // close shm and fd
 }
 

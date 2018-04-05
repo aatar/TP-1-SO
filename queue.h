@@ -5,7 +5,7 @@ typedef struct nodeCDT * nodeADT;
 
 typedef struct nodeCDT
 {
-	const char* data;
+	char* data;
 	nodeADT next;
 }nodeCDT;
 
@@ -19,8 +19,8 @@ typedef struct queueCDT
 }queueCDT;
 
 queueADT createQueue();
-void enqueue(const char * data, queueADT queue);
-const char * dequeue(queueADT queue);
+void enqueue(char * data, queueADT queue);
+char * dequeue(queueADT queue);
 int isEmpty(queueADT queue);
 int getQueueCurrentSize(queueADT queue);
 

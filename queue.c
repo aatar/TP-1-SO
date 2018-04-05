@@ -12,7 +12,7 @@ queueADT createQueue()
 	return queue;
 }
 
-void enqueue(const char * data, queueADT queue)
+void enqueue(char * data, queueADT queue)
 {
 	nodeADT newNode = (nodeADT) malloc(sizeof(nodeCDT));
 
@@ -33,14 +33,14 @@ void enqueue(const char * data, queueADT queue)
 	queue->last = newNode;
 }
 
-const char * dequeue(queueADT queue)
+char * dequeue(queueADT queue)
 {
 	if(isEmpty(queue)){
 		fail("The queue is empty, can't dequeue file\n");
 		return NULL;
 	}
 
-	const char * data = queue->first->data;
+	char * data = queue->first->data;
 	queue->first = queue->first->next;
 	queue->currentSize --;
 
