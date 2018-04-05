@@ -9,6 +9,8 @@
 #include <sys/ipc.h>
 #include <sys/shm.h>
 #include <semaphore.h>
+#include <sys/ipc.h>
+#include <sys/shm.h>
 
 int main(int argc, char *argv[]) {
   int shmsegid;
@@ -28,9 +30,9 @@ int main(int argc, char *argv[]) {
     perror("shmat failed: ");
   }
   int bucle = 1;
-  sem_t *s = sem_open("/sem",O_RDWR);
+  sem_t * sema = sem_open("/sem",O_RDWR);
 
-  if (s == NULL)
+  if (sema == NULL)
   {
     perror("sem_open failed");
 
@@ -38,7 +40,7 @@ int main(int argc, char *argv[]) {
 
   while(bucle)
   {
-    sem_wait(s);
+    sem_wait(sema);
     //read
     for (s = p; *s != '\0'; s++)
     {
@@ -47,12 +49,17 @@ int main(int argc, char *argv[]) {
     }
     putchar('\n');
 
-    sem_post(s);
+    sem_post(sema);
 
   }
 
   //free like
 
   shmdt(p);
+  if (shm_unlink("/sem") != 0) 
+  {
+    perror("Failed shm_unlink");
+    exit(1);
+  }
   return 0;
 }
