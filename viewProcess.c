@@ -56,10 +56,6 @@ int main(int argc, char *argv[]) {
   //free like
 
   shmdt(p);
-  if (shm_unlink("/sem") != 0) 
-  {
-    perror("Failed shm_unlink");
-    exit(1);
-  }
+  
   return 0;
 }
