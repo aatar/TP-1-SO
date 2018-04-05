@@ -24,6 +24,7 @@ int pidSlaves[MAX_AMOUNT_OF_SLAVES];
 int applicationSlaveFD[MAX_AMOUNT_OF_SLAVES];
 int slaveApplicationFD[MAX_AMOUNT_OF_SLAVES];
 char buffer[256];
+//Inicializacion shm y sem
 /*
 int shmsegid;
 char *p, *s;
@@ -34,7 +35,7 @@ sem_t * sema;
 
 int main(int argc, char const *argv[])
 {
-  /*
+  /* para inicializacion shm y semaforos
   sem_unlink("/sem");
   sema = sem_open("/sem",O_CREAT|O_EXCL,0777,1);
 
@@ -53,7 +54,6 @@ int main(int argc, char const *argv[])
       perror("shmat failed: ");
   }
   */
-
   char applicationSlavePipeName[MAX_PIPENAME_LENGTH];
   char slaveApplicationPipeName[MAX_PIPENAME_LENGTH];
 
@@ -101,12 +101,21 @@ int main(int argc, char const *argv[])
         break;
     }
   }
-    // Aca va el fork de vista
-	while(thereAreSlavesAlive())
-	{
+/* Exec viewProcess  
+int pidView;
+  if (pidView = fork())
+  {
+    execlp("./viewProcess", "viewProcess", NULL);
+    perror("Vista process exec() failed. Exitting.");
+    exit(1);
+  }
+*/	
+  createFile();
+  while(thereAreSlavesAlive())
+  {
       		printf("", thereAreSlavesAlive());
 		applicationProcess();
-	}
+  }
   createFile();
   closeAll();
   return 0;
@@ -164,19 +173,19 @@ void readSlavePipe(int index)
   if (strncmp(WAITING_MESSAGE, buffer, nbytes))
   {
     strcat(finalValues, buffer);
-  	strcat(finalValues, "\r\n");
+    strcat(finalValues, "\r\n");
 
-    /*
-    sem_wait(sema);
-		//Write message
-		s = p;
+    	/* Para enviar mensaje por shm
+    	sem_wait(sema);
+	//Write message
+	s = p;
   	for (c = 0; c < strlen(buffer); c++)
-		{
-				*s++ = buffer[c];
-		}
+	{
+		*s++ = buffer[c];
+	}
   	*s = '\0';
-		sem_post(sema);
-    */
+	sem_post(sema);
+   	*/
   }
    answerSlaveRequest(index);;
    return;
