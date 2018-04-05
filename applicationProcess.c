@@ -75,8 +75,10 @@ int main(int argc, char const *argv[])
   int applicationPID = getpid();
 
   int slavePID;
-  for (int index = 0; index < MAX_AMOUNT_OF_SLAVES; index++) {
-    switch (slavePID = fork()) {
+  for (int index = 0; index < MAX_AMOUNT_OF_SLAVES; index++) 
+  {
+    switch (slavePID = fork()) 
+    {
       case -1:
         perror("Fork failed\n");
         exit(1);
@@ -98,15 +100,13 @@ int main(int argc, char const *argv[])
         answerSlaveRequest(index);
         break;
     }
-
-    // Aca va el fork de vista
-
-    while(thereAreSlavesAlive())
-		{
-      printf("", thereAreSlavesAlive());
-			applicationProcess();
-		}
   }
+    // Aca va el fork de vista
+	while(thereAreSlavesAlive())
+	{
+      		printf("", thereAreSlavesAlive());
+		applicationProcess();
+	}
   createFile();
   closeAll();
   return 0;
