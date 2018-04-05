@@ -7,10 +7,11 @@
 #define MAX_BUFFER_SIZE 290
 #define MAX_AMOUNT_OF_SLAVES 5
 #define MAX_PIPENAME_LENGTH 30
+#define MAX_FINAL_FILE_SIZE 10000
 #define KILL_MESSAGE "KILL"
 #define WAITING_MESSAGE "WAITING"
 
-void makeFileQueue(char * path, queueADT queue);
+void makeFileQueue(const char * path, queueADT queue);
 void readSlavePipe(int index);
 void answerSlaveRequest(int index);
 void applicationProcess();
