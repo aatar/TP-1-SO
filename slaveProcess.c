@@ -35,20 +35,23 @@ int main() {
 	bzero(message, MAX_BUFFER_SIZE);
 	strncpy(message, WAITING_MESSAGE, MAX_NAMEPATH);
 	write(slaveApplicationFD, message, strlen(message));
-	while(bucle) {
-			bzero(inputBuffer, MAX_NAMEPATH);
-			nbytes= read(applicationSlaveFD, inputBuffer, MAX_NAMEPATH);
-			printf("%d: %s\n", slavePID, inputBuffer);
-			if (strncmp(KILL_MESSAGE, inputBuffer, nbytes) == 0)
-			{
-				bucle = 0;
-			}
-			else
-			{
-				bzero(fileAndHash, MAX_BUFFER_SIZE);
-				fileAndHash = calculateFileMD5Hash(inputBuffer);
-				write(slaveApplicationFD, fileAndHash, strlen(fileAndHash));
-			}
+
+	while(bucle)
+	{
+		bzero(inputBuffer, MAX_NAMEPATH);
+		nbytes= read(applicationSlaveFD, inputBuffer, MAX_NAMEPATH);
+		printf("%d: %s\n", slavePID, inputBuffer);
+		if (strncmp(KILL_MESSAGE, inputBuffer, nbytes) == 0)
+		{
+			bucle = 0;
+		}
+		else
+		{
+			bzero(fileAndHash, MAX_BUFFER_SIZE);
+			fileAndHash = calculateFileMD5Hash(inputBuffer);
+			printf("hashed file: %s\n", fileAndHash);
+			write(slaveApplicationFD, fileAndHash, strlen(fileAndHash));
+		}
 	}
 	return 0;
 }

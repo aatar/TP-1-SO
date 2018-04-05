@@ -47,7 +47,7 @@ int main(int argc, char const *argv[])
   int applicationPID = getpid();
 
   int slavePID;
-  for (int index = 0; index < 1; index++) {
+  for (int index = 0; index < MAX_AMOUNT_OF_SLAVES; index++) {
     switch (slavePID = fork()) {
       case -1:
         perror("Fork failed\n");
@@ -71,7 +71,8 @@ int main(int argc, char const *argv[])
     }
 		while(thereAreSlavesAlive())
 		{
-				applicationProcess();
+      printf("%d\n", thereAreSlavesAlive());
+			applicationProcess();
 		}
   }
   closeAll();
@@ -154,7 +155,7 @@ void answerSlaveRequest(int index)
   write(applicationSlaveFD[index] , applicationOutputBuffer, strlen(applicationOutputBuffer));
 }
 
-void makeFileQueue(char * path, queueADT queue)
+void makeFileQueue(const char * path, queueADT queue)
 {
 	DIR * d = opendir(path);
 	if(errno == ENOTDIR)
@@ -167,7 +168,7 @@ void makeFileQueue(char * path, queueADT queue)
 
 void closeAll()
 {
-  printf("Chau");
+  printf("Chau\n");
   // close shm and fd
 }
 
