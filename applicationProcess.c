@@ -15,8 +15,7 @@
 #include <semaphore.h>
 
 queueADT filesQueue;
-queueADT hashedFilesQueue;
-queueADT finalQueue;
+char finalValues[MAX_FINAL_FILE_SIZE];
 int pidSlaves[MAX_AMOUNT_OF_SLAVES];
 int applicationSlaveFD[MAX_AMOUNT_OF_SLAVES];
 int slaveApplicationFD[MAX_AMOUNT_OF_SLAVES];
@@ -62,8 +61,7 @@ int main(int argc, char const *argv[])
   }
 
   filesQueue = createQueue();
-  hashedFilesQueue = createQueue();
-  finalQueue = createQueue();
+  strcpy(finalValues, "");
 
   for (int argIndex = 1; argIndex < argc; argIndex++)
   {
@@ -114,8 +112,12 @@ int main(int argc, char const *argv[])
 			applicationProcess();
 		}
   }
+<<<<<<< HEAD
 
   kill(pidVista, SIGKILL);
+=======
+  createFile();
+>>>>>>> 9114ec8a4b3fe6511de3b82a3613ac528e9e404d
   closeAll();
   return 0;
   }
@@ -170,9 +172,16 @@ void readSlavePipe(int index)
   nbytes = read(slaveApplicationFD[index] , buffer, MAX_BUFFER_SIZE);
   if (strncmp(WAITING_MESSAGE, buffer, nbytes))
   {
+<<<<<<< HEAD
     enqueue(buffer, hashedFilesQueue);
     enqueue(buffer, finalQueue);
 
+=======
+    strcat(finalValues, buffer);
+  	strcat(finalValues, "\r\n");
+
+    /*
+>>>>>>> 9114ec8a4b3fe6511de3b82a3613ac528e9e404d
     sem_wait(sema);
 		//Write message
 		s = p;
@@ -204,7 +213,7 @@ void answerSlaveRequest(int index)
   write(applicationSlaveFD[index] , applicationOutputBuffer, strlen(applicationOutputBuffer));
 }
 
-void makeFileQueue(char * path, queueADT queue)
+void makeFileQueue(const char * path, queueADT queue)
 {
 	DIR * d = opendir(path);
 	if(errno == ENOTDIR)
@@ -232,25 +241,15 @@ void closeAll()
   // close shm and fd
 }
 
-// void createFile()
-// {
-//   char userContent[FINAL_FILE_SIZE];
-//   FILE * fPtr;
-//   fPtr = fopen("fileOutput.txt", "w");
-//
-//   if(fPtr == NULL)
-//   {
-//     printf("Unable to create file.\n");
-//     exit(10);
-//   }
-//
-// 	strcpy(userContent, "");
-// 	for(int i = 0; i < FILES_COUNT; i++) {
-// 		strcat(userContent, testingFilesPaths[i]);
-// 		strcat(userContent, ": ");
-// 		strcat(userContent, calculatedMD5Hashes[i]);
-// 		strcat(userContent, "\t");
-// 	}
-//   fputs(userContent, fPtr);
-//   fclose(fPtr);
-// }
+void createFile()
+{
+  FILE * fPtr;
+  fPtr = fopen("fileOutput.txt", "w");
+  if(fPtr == NULL)
+  {
+    printf("Unable to create file.\n");
+    exit(10);
+  }
+  fputs(finalValues, fPtr);
+  fclose(fPtr);
+}
