@@ -21,22 +21,23 @@ int pidSlaves[MAX_AMOUNT_OF_SLAVES];
 int applicationSlaveFD[MAX_AMOUNT_OF_SLAVES];
 int slaveApplicationFD[MAX_AMOUNT_OF_SLAVES];
 char buffer[256];
-/*
+
 int shmsegid;
 char *p, *s;
 char c;
 sem_t * sema;
-*/
+
 
 
 int main(int argc, char const *argv[])
 {
-  /*
+
   sem_unlink("/sem");
   sema = sem_open("/sem",O_CREAT|O_EXCL,0777,1);
 
   //Crear memoria
-  shmsegid = shmget(1237, 1024, IPC_CREAT | 0666);
+  shmsegid = shmget(1237, 102
+    4, IPC_CREAT | 0666);
 
   if (shmsegid < 0)
   {
@@ -49,7 +50,7 @@ int main(int argc, char const *argv[])
   {
       perror("shmat failed: ");
   }
-  */
+
 
   char applicationSlavePipeName[MAX_PIPENAME_LENGTH];
   char slaveApplicationPipeName[MAX_PIPENAME_LENGTH];
@@ -97,6 +98,14 @@ int main(int argc, char const *argv[])
         break;
     }
 
+    int pidVista;
+    if (pidVista=fork())
+    {
+      execlp("./vistaProcess", "vistaProcess", NULL);
+      perror("Vista process exec() failed. Exitting.");
+      exit(1);
+      break;
+    }
     // Aca va el fork de vista
 
     while(thereAreSlavesAlive())
@@ -106,6 +115,7 @@ int main(int argc, char const *argv[])
 		}
   }
 
+  kill(pidVista, SIGKILL);
   closeAll();
   return 0;
   }
@@ -138,7 +148,6 @@ void applicationProcess()
       }
     }
   }
-
 }
 
 int thereAreSlavesAlive()
@@ -163,7 +172,7 @@ void readSlavePipe(int index)
   {
     enqueue(buffer, hashedFilesQueue);
     enqueue(buffer, finalQueue);
-    /*
+
     sem_wait(sema);
 		//Write message
 		s = p;
@@ -173,7 +182,7 @@ void readSlavePipe(int index)
 		}
   	*s = '\0';
 		sem_post(sema);
-    */
+
   }
    answerSlaveRequest(index);;
    return;
