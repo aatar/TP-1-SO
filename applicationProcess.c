@@ -14,6 +14,9 @@
 #include "applicationProcess.h"
 #include "queue.h"
 #include <semaphore.h>
+#include <sys/ipc.h>
+#include <sys/shm.h>
+#include <sys/select.h>
 
 queueADT filesQueue;
 char finalValues[MAX_FINAL_FILE_SIZE];
